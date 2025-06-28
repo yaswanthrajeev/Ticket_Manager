@@ -260,23 +260,7 @@ If you encounter PowerShell execution policy errors:
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
-## 🚀 Deployment
 
-### Backend Deployment (Heroku)
-1. Create `Procfile` in root:
-   ```
-   web: cd main && python app.py
-   ```
-2. Set environment variables in Heroku dashboard
-3. Deploy using Heroku CLI or GitHub integration
-
-### Frontend Deployment (Vercel/Netlify)
-1. Build the project:
-   ```bash
-   cd ticket-system
-   npm run build
-   ```
-2. Deploy the `dist/` folder to your hosting service
 
 ## 🤝 Contributing
 
@@ -290,22 +274,6 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
 
-- **Flask** community for the excellent web framework
-- **React** team for the amazing frontend library
-- **Vite** for the fast development experience
-
-## 📞 Support
-
-If you encounter any issues or have questions:
-
-1. **Check** the troubleshooting section above
-2. **Search** existing issues in the repository
-3. **Create** a new issue with detailed information
-
----
-
-**Made with ❤️ by [Your Name]**
 
 *Happy ticket managing! 🎫*
