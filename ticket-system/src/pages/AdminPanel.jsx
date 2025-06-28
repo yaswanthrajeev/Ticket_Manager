@@ -3,13 +3,16 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import AdminTicket from '../components/AdminTicket';
 import LogViewer from '../components/LogViewer';
+import SearchBar from '../components/SearchBar';
 
 function AdminPanel() {
   const [tickets, setTickets] = useState([]);
+  const [filteredTickets, setFilteredTickets] = useState([]);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [showLogs, setShowLogs] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,6 +23,7 @@ function AdminPanel() {
     try {
       const response = await axios.get('http://localhost:5000/admin/tickets', { withCredentials: true });
       setTickets(response.data);
+      setFilteredTickets(response.data);
     } catch (err) {
       if (err.response?.status === 401) {
         navigate('/login');
@@ -28,6 +32,30 @@ function AdminPanel() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSearch = async (searchTerm) => {
+    if (!searchTerm.trim()) {
+      setFilteredTickets(tickets);
+      return;
+    }
+
+    setSearchLoading(true);
+    try {
+      // For admin search, we'll filter locally since we have all tickets
+      const filtered = tickets.filter(ticket => 
+        ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        ticket.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        ticket.user.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredTickets(filtered);
+    } catch (err) {
+      console.error('Search failed:', err);
+      setError('Search failed. Showing all tickets.');
+      setFilteredTickets(tickets);
+    } finally {
+      setSearchLoading(false);
     }
   };
 
@@ -90,8 +118,13 @@ function AdminPanel() {
           />
         )}
 
+        <div className="search-section">
+          <SearchBar onSearch={handleSearch} placeholder="Search tickets by title, description, or user..." />
+          {searchLoading && <div className="search-loading">Searching...</div>}
+        </div>
+
         <div className="tickets-grid">
-          {tickets.map(ticket => (
+          {filteredTickets.map(ticket => (
             <AdminTicket
               key={ticket.id}
               ticket={ticket}
@@ -101,7 +134,7 @@ function AdminPanel() {
           ))}
         </div>
 
-        {tickets.length === 0 && !loading && (
+        {filteredTickets.length === 0 && !searchLoading && (
           <div className="no-tickets">
             <p>No tickets found.</p>
           </div>

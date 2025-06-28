@@ -3,7 +3,22 @@ from models import db, Ticket,TicketLog,TicketStatus
 
 
 ticket=Blueprint('tickets',__name__)
-
+@ticket.route('/tickets/search',methods=['GET'])
+def search_tickets():
+    query=request.args.get('query')
+    if not query:
+        return jsonify({'error': 'No query provided'}), 400
+    try:
+        tickets = Ticket.query.filter(
+        db.or_(
+            Ticket.title.ilike(f"%{query}%"),
+            Ticket.description.ilike(f"%{query}%")
+        )
+        ).all()
+        return jsonify([{'id':t.id,'title':t.title,'description':t.description,'status':t.status.value} 
+                        for t in tickets])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 @ticket.route('/tickets',methods=['POST'])
 def create_ticket():
     data=request.json

@@ -3,12 +3,15 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import TicketForm from '../components/TicketForm';
 import TicketList from '../components/TicketList';
+import SearchBar from '../components/SearchBar';
 
 function Dashboard() {
   const [tickets, setTickets] = useState([]);
+  const [filteredTickets, setFilteredTickets] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,6 +22,7 @@ function Dashboard() {
     try {
       const response = await axios.get('http://localhost:5000/tickets', { withCredentials: true });
       setTickets(response.data);
+      setFilteredTickets(response.data);
     } catch (err) {
       if (err.response?.status === 401) {
         navigate('/login');
@@ -27,6 +31,27 @@ function Dashboard() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSearch = async (searchTerm) => {
+    if (!searchTerm.trim()) {
+      setFilteredTickets(tickets);
+      return;
+    }
+
+    setSearchLoading(true);
+    try {
+      const response = await axios.get(`http://localhost:5000/tickets/search?query=${encodeURIComponent(searchTerm)}`, { 
+        withCredentials: true 
+      });
+      setFilteredTickets(response.data);
+    } catch (err) {
+      console.error('Search failed:', err);
+      setError('Search failed. Showing all tickets.');
+      setFilteredTickets(tickets);
+    } finally {
+      setSearchLoading(false);
     }
   };
 
@@ -99,12 +124,23 @@ function Dashboard() {
           <TicketForm onSubmit={handleCreateTicket} onCancel={() => setShowForm(false)} />
         )}
 
+        <div className="search-section">
+          <SearchBar onSearch={handleSearch} placeholder="Search tickets by title..." />
+          {searchLoading && <div className="search-loading">Searching...</div>}
+        </div>
+
         <TicketList 
-          tickets={tickets}
+          tickets={filteredTickets}
           onUpdate={handleUpdateTicket}
           onDelete={handleDeleteTicket}
           isAdmin={false}
         />
+
+        {filteredTickets.length === 0 && !searchLoading && (
+          <div className="no-tickets">
+            <p>No tickets found.</p>
+          </div>
+        )}
       </div>
     </div>
   );
