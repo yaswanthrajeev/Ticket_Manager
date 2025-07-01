@@ -1,8 +1,17 @@
 from flask import Blueprint, request, session, jsonify
 from models import db, Ticket,TicketLog,TicketStatus
+from flask import send_from_directory, current_app
+import os
 
 
 ticket=Blueprint('tickets',__name__)
+
+
+@ticket.route('/uploads/<filename>')
+def uploaded_file(filename):
+    upload_folder = os.path.join(current_app.root_path, 'uploads')
+    return send_from_directory(upload_folder, filename)
+
 @ticket.route('/tickets/search',methods=['GET'])
 def search_tickets():
     query=request.args.get('query')
@@ -15,20 +24,29 @@ def search_tickets():
             Ticket.description.ilike(f"%{query}%")
         )
         ).all()
-        return jsonify([{'id':t.id,'title':t.title,'description':t.description,'status':t.status.value} 
+        return jsonify([{'id':t.id,'title':t.title,'description':t.description,'status':t.status.value,'attachment_url': f"/uploads/{t.attachment}" if t.attachment else None} 
                         for t in tickets])
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 @ticket.route('/tickets',methods=['POST'])
 def create_ticket():
-    data=request.json
     if 'user_id' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
-    data=request.json
-    ticket = Ticket(title=data['title'],
-                    description=data['description'],
-                    user_id=session['user_id']
-                    )
+    title=request.form.get('title')
+    description=request.form.get('description')
+    attachment=request.files.get('attachment')
+    filename=attachment.filename if attachment else None
+    if attachment:
+        upload_folder=os.path.join(current_app.root_path,'uploads')
+        os.makedirs(upload_folder,exist_ok=True)
+        filename=attachment.filename
+        attachment.save(os.path.join(upload_folder,filename))
+    ticket = Ticket(
+        title=title,
+        description=description,
+        user_id=session['user_id'],
+        attachment=filename
+    )
     db.session.add(ticket)
     db.session.commit()
     return jsonify({"message": "Ticket created successfully"}), 201
@@ -51,7 +69,7 @@ def get_tickets():
     tickets = query.all()
 
     ticket_list = [
-        {'id': t.id, 'title': t.title, 'description': t.description, 'status': t.status.value}
+        {'id': t.id, 'title': t.title, 'description': t.description, 'status': t.status.value,'attachment_url': f"/uploads/{t.attachment}" if t.attachment else None}
         for t in tickets
     ]
     return jsonify(ticket_list)

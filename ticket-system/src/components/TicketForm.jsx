@@ -2,24 +2,33 @@ import React, { useState } from 'react';
 
 function TicketForm({ onSubmit, onCancel }) {
   const [form, setForm] = useState({ title: '', description: '' });
+  const [file, setFile] = useState(null);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (form.title.trim() && form.description.trim()) {
-      onSubmit(form);
-      setForm({ title: '', description: '' });
-    }
+    const formData = new FormData();
+    formData.append('title', form.title);
+    formData.append('description', form.description);
+    if (file) formData.append('attachment', file);
+    onSubmit(formData);
+    setForm({ title: '', description: '' });
+    setFile(null);
   };
 
   return (
     <div className="ticket-form-container">
       <form className="ticket-form" onSubmit={handleSubmit}>
         <h3>Create New Ticket</h3>
-        
+        <div className="form-group">
+          <label htmlFor="attachment">Attachment</label>
+          <input type="file" name="attachment" onChange={handleFileChange} />
+        </div>
         <div className="form-group">
           <label htmlFor="title">Title</label>
           <input

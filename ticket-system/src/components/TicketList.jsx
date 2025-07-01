@@ -53,7 +53,14 @@ function TicketList({ tickets, onUpdate, onDelete, isAdmin }) {
           
           <div className="ticket-content">
             <p>{ticket.description}</p>
-          </div>
+            {ticket.attachment_url && (
+              <div className="ticket-attachment">
+                <a href={`http://localhost:5000${ticket.attachment_url}`} target="_blank" rel="noopener noreferrer">
+                    View Attachment
+                </a>
+            </div>
+            )}
+         </div>
 
           <div className="ticket-actions">
             {editingId === ticket.id ? (

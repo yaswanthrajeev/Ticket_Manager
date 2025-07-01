@@ -57,7 +57,11 @@ function Dashboard() {
 
   const handleCreateTicket = async (ticketData) => {
     try {
-      await axios.post('http://localhost:5000/tickets', ticketData, { withCredentials: true });
+      await axios.post('http://localhost:5000/tickets', ticketData, { withCredentials: true , 
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       setShowForm(false);
       fetchTickets();
     } catch (err) {
