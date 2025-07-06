@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function SearchBar({ onSearch, placeholder = "Search tickets..." }) {
+function SearchBar({ onSearch, placeholder = "Search tickets...", activeFilters = {} }) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleSubmit = (e) => {
@@ -14,6 +14,8 @@ function SearchBar({ onSearch, placeholder = "Search tickets..." }) {
     setSearchTerm('');
     onSearch(''); // Clear search results
   };
+
+  const hasActiveFilters = Object.values(activeFilters).some(filter => filter !== 'all');
 
   return (
     <div className="search-container">
@@ -42,6 +44,15 @@ function SearchBar({ onSearch, placeholder = "Search tickets..." }) {
           </div>
         </div>
       </form>
+      {hasActiveFilters && (
+        <div className="active-filters">
+          <small>Active filters: {Object.entries(activeFilters)
+            .filter(([key, value]) => value !== 'all')
+            .map(([key, value]) => `${key}: ${value}`)
+            .join(', ')}
+          </small>
+        </div>
+      )}
     </div>
   );
 }

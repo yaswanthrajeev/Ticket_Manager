@@ -13,15 +13,26 @@ function AdminPanel() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
+  const [priorityFilter, setPriorityFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchTickets();
-  }, []);
+  }, [priorityFilter, categoryFilter]);
 
   const fetchTickets = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/admin/tickets', { withCredentials: true });
+      const params = new URLSearchParams();
+      if (priorityFilter !== 'all') {
+        params.append('priority', priorityFilter);
+      }
+      if (categoryFilter !== 'all') {
+        params.append('category', categoryFilter);
+      }
+      
+      const url = `http://localhost:5000/admin/tickets${params.toString() ? `?${params.toString()}` : ''}`;
+      const response = await axios.get(url, { withCredentials: true });
       setTickets(response.data);
       setFilteredTickets(response.data);
     } catch (err) {
@@ -37,23 +48,29 @@ function AdminPanel() {
 
   const handleSearch = async (searchTerm) => {
     if (!searchTerm.trim()) {
-      setFilteredTickets(tickets);
+      fetchTickets(); // Refetch with current filters
       return;
     }
 
     setSearchLoading(true);
     try {
-      // For admin search, we'll filter locally since we have all tickets
-      const filtered = tickets.filter(ticket => 
-        ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ticket.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ticket.user.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredTickets(filtered);
+      const params = new URLSearchParams();
+      params.append('query', searchTerm);
+      if (priorityFilter !== 'all') {
+        params.append('priority', priorityFilter);
+      }
+      if (categoryFilter !== 'all') {
+        params.append('category', categoryFilter);
+      }
+      
+      const response = await axios.get(`http://localhost:5000/tickets/search?${params.toString()}`, { 
+        withCredentials: true 
+      });
+      setFilteredTickets(response.data);
     } catch (err) {
       console.error('Search failed:', err);
       setError('Search failed. Showing all tickets.');
-      setFilteredTickets(tickets);
+      fetchTickets(); // Refetch with current filters
     } finally {
       setSearchLoading(false);
     }
@@ -118,8 +135,34 @@ function AdminPanel() {
           />
         )}
 
+        <div className="filter-section" style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
+          <div>
+            <label>Priority: </label>
+            <select value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)}>
+              <option value="all">All</option>
+              <option value="LOW">Low</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="HIGH">High</option>
+            </select>
+          </div>
+          <div>
+            <label>Category: </label>
+            <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
+              <option value="all">All</option>
+              <option value="BUG">Bug</option>
+              <option value="FEATURE">Feature</option>
+              <option value="SERVICE">Service</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+        </div>
+
         <div className="search-section">
-          <SearchBar onSearch={handleSearch} placeholder="Search tickets by title, description, or user..." />
+          <SearchBar 
+            onSearch={handleSearch} 
+            placeholder="Search tickets by title, description, or user..." 
+            activeFilters={{ priority: priorityFilter, category: categoryFilter }}
+          />
           {searchLoading && <div className="search-loading">Searching...</div>}
         </div>
 

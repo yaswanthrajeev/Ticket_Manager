@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import CommentSection from './CommentSection';
 
 function AdminTicket({ ticket, onUpdate, onViewLogs }) {
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState({ status: ticket.status });
+  const [showComments, setShowComments] = useState(false);
 
   const statusOptions = ['Open', 'In Progress', 'Closed', 'Reopened'];
 
@@ -19,6 +21,10 @@ function AdminTicket({ ticket, onUpdate, onViewLogs }) {
   const handleCancel = () => {
     setEditing(false);
     setEditForm({ status: ticket.status });
+  };
+
+  const toggleComments = () => {
+    setShowComments(!showComments);
   };
 
   const getStatusColor = (status) => {
@@ -49,7 +55,24 @@ function AdminTicket({ ticket, onUpdate, onViewLogs }) {
           <span className="ticket-id">
             <strong>ID:</strong> #{ticket.id}
           </span>
+          {ticket.priority && (
+            <span className="priority-info">
+              <strong>Priority:</strong> {ticket.priority}
+            </span>
+          )}
+          {ticket.category && (
+            <span className="category-info">
+              <strong>Category:</strong> {ticket.category}
+            </span>
+          )}
         </div>
+        {ticket.attachment_url && (
+          <div className="ticket-attachment">
+            <a href={`http://localhost:5000${ticket.attachment_url}`} target="_blank" rel="noopener noreferrer">
+              View Attachment
+            </a>
+          </div>
+        )}
       </div>
 
       <div className="ticket-actions">
@@ -82,6 +105,12 @@ function AdminTicket({ ticket, onUpdate, onViewLogs }) {
         ) : (
           <div className="action-buttons">
             <button 
+              className="btn btn-info btn-sm" 
+              onClick={toggleComments}
+            >
+              {showComments ? 'Hide Comments' : 'View Comments'}
+            </button>
+            <button 
               className="btn btn-primary btn-sm" 
               onClick={handleEdit}
             >
@@ -96,6 +125,13 @@ function AdminTicket({ ticket, onUpdate, onViewLogs }) {
           </div>
         )}
       </div>
+
+      {/* Comments Section */}
+      {showComments && (
+        <div className="ticket-comments">
+          <CommentSection ticketId={ticket.id} isAdmin={true} />
+        </div>
+      )}
     </div>
   );
 }

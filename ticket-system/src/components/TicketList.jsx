@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import CommentSection from './CommentSection';
 
 function TicketList({ tickets, onUpdate, onDelete, isAdmin }) {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
+  const [expandedTicket, setExpandedTicket] = useState(null);
 
   const statusOptions = ['Open', 'In Progress', 'Closed', 'Reopened'];
 
@@ -20,6 +22,10 @@ function TicketList({ tickets, onUpdate, onDelete, isAdmin }) {
   const handleCancel = () => {
     setEditingId(null);
     setEditForm({});
+  };
+
+  const toggleComments = (ticketId) => {
+    setExpandedTicket(expandedTicket === ticketId ? null : ticketId);
   };
 
   const getStatusColor = (status) => {
@@ -53,12 +59,16 @@ function TicketList({ tickets, onUpdate, onDelete, isAdmin }) {
           
           <div className="ticket-content">
             <p>{ticket.description}</p>
+            <div className="ticket-meta">
+              <span><strong>Priority:</strong> {ticket.priority}</span>
+              <span><strong>Category:</strong> {ticket.category}</span>
+            </div>
             {ticket.attachment_url && (
               <div className="ticket-attachment">
                 <a href={`http://localhost:5000${ticket.attachment_url}`} target="_blank" rel="noopener noreferrer">
-                    View Attachment
+                  View Attachment
                 </a>
-            </div>
+              </div>
             )}
          </div>
 
@@ -91,6 +101,12 @@ function TicketList({ tickets, onUpdate, onDelete, isAdmin }) {
             ) : (
               <div className="action-buttons">
                 <button 
+                  className="btn btn-info btn-sm" 
+                  onClick={() => toggleComments(ticket.id)}
+                >
+                  {expandedTicket === ticket.id ? 'Hide Comments' : 'View Comments'}
+                </button>
+                <button 
                   className="btn btn-primary btn-sm" 
                   onClick={() => handleEdit(ticket)}
                 >
@@ -105,6 +121,13 @@ function TicketList({ tickets, onUpdate, onDelete, isAdmin }) {
               </div>
             )}
           </div>
+
+          {/* Comments Section */}
+          {expandedTicket === ticket.id && (
+            <div className="ticket-comments">
+              <CommentSection ticketId={ticket.id} isAdmin={isAdmin} />
+            </div>
+          )}
         </div>
       ))}
     </div>
