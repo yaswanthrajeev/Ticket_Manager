@@ -1,9 +1,9 @@
 from flask import Flask
 from flask_cors import CORS
-from models import db
-from tickets import ticket
-from admin import admin
-from auth import auth, bcrypt
+from main.models import db
+from main.tickets import ticket
+from main.admin import admin
+from main.auth import auth, bcrypt
 from flask_migrate import Migrate
 
 
