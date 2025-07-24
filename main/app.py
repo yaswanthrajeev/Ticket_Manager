@@ -13,7 +13,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your_secret_key'
 
 # Enable CORS
-CORS(app, supports_credentials=True, origins=['http://localhost:5173'])
+CORS(app, supports_credentials=True, origins=['http://localhost:5173','https://ticket-manager-q524.vercel.app/'])
 
 db.init_app(app)
 migrate = Migrate(app,db)

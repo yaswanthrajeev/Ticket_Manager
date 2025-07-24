@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+
 function CommentSection({ ticketId, isAdmin }) {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
@@ -13,7 +15,7 @@ function CommentSection({ ticketId, isAdmin }) {
 
   const fetchComments = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/tickets/${ticketId}/comments`, { 
+      const response = await axios.get(`${BASE_URL}/tickets/${ticketId}/comments`, { 
         withCredentials: true 
       });
       setComments(response.data);
@@ -29,7 +31,7 @@ function CommentSection({ ticketId, isAdmin }) {
 
     setLoading(true);
     try {
-      const response = await axios.post(`http://localhost:5000/tickets/${ticketId}/comments`, 
+      const response = await axios.post(`${BASE_URL}/tickets/${ticketId}/comments`, 
         { content: newComment.trim() },
         { withCredentials: true }
       );
@@ -49,7 +51,7 @@ function CommentSection({ ticketId, isAdmin }) {
     if (!window.confirm('Are you sure you want to delete this comment?')) return;
 
     try {
-      await axios.delete(`http://localhost:5000/comments/${commentId}`, { 
+      await axios.delete(`${BASE_URL}/comments/${commentId}`, { 
         withCredentials: true 
       });
       setComments(comments.filter(c => c.id !== commentId));

@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import CommentSection from './CommentSection';
 
+const BASE_URL = process.env.REACT_APP_BACKEND_URL;
+
+
 function AdminTicket({ ticket, onUpdate, onViewLogs }) {
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState({ status: ticket.status });
@@ -68,7 +71,7 @@ function AdminTicket({ ticket, onUpdate, onViewLogs }) {
         </div>
         {ticket.attachment_url && (
           <div className="ticket-attachment">
-            <a href={`http://localhost:5000${ticket.attachment_url}`} target="_blank" rel="noopener noreferrer">
+            <a href={`${BASE_URL}${ticket.attachment_url}`} target="_blank" rel="noopener noreferrer">
               View Attachment
             </a>
           </div>
