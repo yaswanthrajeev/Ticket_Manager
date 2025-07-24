@@ -1,5 +1,5 @@
 from flask import Blueprint, request, session, jsonify
-from models import db, Ticket,TicketLog,TicketStatus
+from main.models import db, Ticket,TicketLog,TicketStatus
 from flask import send_from_directory, current_app
 import os
 

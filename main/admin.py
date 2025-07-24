@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify,session
-from models import db, User, Ticket, TicketLog, TicketStatus
+from main.models import db, User, Ticket, TicketLog, TicketStatus
 
 
 admin=Blueprint('admin',__name__)
