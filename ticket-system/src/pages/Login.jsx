@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
+const BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+
 function Login() {
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
@@ -18,7 +20,7 @@ function Login() {
     setError('');
     
     try {
-      const response = await axios.post('http://localhost:5000/login', form, { withCredentials: true });
+      const response = await axios.post(`${BASE_URL}/login`, form, { withCredentials: true });
       
       // Check if user is admin and redirect accordingly
       if (response.data.is_admin) {

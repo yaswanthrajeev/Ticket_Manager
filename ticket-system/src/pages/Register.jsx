@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
+const BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+
 function Register() {
   const [form, setForm] = useState({ username: '', email: '', password: '', is_admin: false });
   const [error, setError] = useState('');
@@ -19,7 +21,7 @@ function Register() {
     setError('');
     
     try {
-      await axios.post('http://localhost:5000/register', form, { withCredentials: true });
+      await axios.post(`${BASE_URL}/register`, form, { withCredentials: true });
       navigate('/login');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');

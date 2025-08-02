@@ -7,10 +7,16 @@ from main.auth import auth, bcrypt
 from flask_migrate import Migrate
 
 
+import os
+
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = 'your_secret_key'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///site.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.environ.get('SQLALCHEMY_TRACK_MODIFICATIONS', 'False') == 'True'
+app.secret_key = os.environ.get('SECRET_KEY', 'your_secret_key')
+# Secure session cookies for production
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 # Enable CORS
 CORS(app, supports_credentials=True, origins=['http://localhost:5173','https://ticket-manager-q524.vercel.app/'])
@@ -30,4 +36,5 @@ def home():
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    # For development only. For production, use a WSGI server like Gunicorn or uWSGI.
+    app.run(debug=False)

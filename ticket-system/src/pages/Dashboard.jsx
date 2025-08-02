@@ -5,6 +5,8 @@ import TicketForm from '../components/TicketForm';
 import TicketList from '../components/TicketList';
 import SearchBar from '../components/SearchBar';
 
+const BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+
 function Dashboard() {
   const [tickets, setTickets] = useState([]);
   const [filteredTickets, setFilteredTickets] = useState([]);
@@ -30,7 +32,7 @@ function Dashboard() {
         params.append('category', categoryFilter);
       }
       
-      const url = `http://localhost:5000/tickets${params.toString() ? `?${params.toString()}` : ''}`;
+      const url = `${BASE_URL}/tickets${params.toString() ? `?${params.toString()}` : ''}`;
       const response = await axios.get(url, { withCredentials: true });
       setTickets(response.data);
       setFilteredTickets(response.data);
@@ -62,7 +64,7 @@ function Dashboard() {
         params.append('category', categoryFilter);
       }
       
-      const response = await axios.get(`http://localhost:5000/tickets/search?${params.toString()}`, { 
+      const response = await axios.get(`${BASE_URL}/tickets/search?${params.toString()}`, { 
         withCredentials: true 
       });
       setFilteredTickets(response.data);
@@ -77,7 +79,7 @@ function Dashboard() {
 
   const handleCreateTicket = async (ticketData) => {
     try {
-      await axios.post('http://localhost:5000/tickets', ticketData, { withCredentials: true , 
+      await axios.post(`${BASE_URL}/tickets`, ticketData, { withCredentials: true , 
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -91,7 +93,7 @@ function Dashboard() {
 
   const handleUpdateTicket = async (ticketId, updates) => {
     try {
-      await axios.put(`http://localhost:5000/tickets/${ticketId}`, updates, { withCredentials: true });
+      await axios.put(`${BASE_URL}/tickets/${ticketId}`, updates, { withCredentials: true });
       fetchTickets();
     } catch (err) {
       setError('Failed to update ticket');
@@ -101,7 +103,7 @@ function Dashboard() {
   const handleDeleteTicket = async (ticketId) => {
     if (window.confirm('Are you sure you want to delete this ticket?')) {
       try {
-        await axios.delete(`http://localhost:5000/tickets/${ticketId}`, { withCredentials: true });
+        await axios.delete(`${BASE_URL}/tickets/${ticketId}`, { withCredentials: true });
         fetchTickets();
       } catch (err) {
         setError('Failed to delete ticket');
@@ -111,7 +113,7 @@ function Dashboard() {
 
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:5000/logout', {}, { withCredentials: true });
+      await axios.post(`${BASE_URL}/logout`, {}, { withCredentials: true });
       navigate('/login');
     } catch (err) {
       navigate('/login');

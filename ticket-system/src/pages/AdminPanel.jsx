@@ -5,6 +5,8 @@ import AdminTicket from '../components/AdminTicket';
 import LogViewer from '../components/LogViewer';
 import SearchBar from '../components/SearchBar';
 
+const BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+
 function AdminPanel() {
   const [tickets, setTickets] = useState([]);
   const [filteredTickets, setFilteredTickets] = useState([]);
@@ -31,7 +33,7 @@ function AdminPanel() {
         params.append('category', categoryFilter);
       }
       
-      const url = `http://localhost:5000/admin/tickets${params.toString() ? `?${params.toString()}` : ''}`;
+      const url = `${BASE_URL}/admin/tickets${params.toString() ? `?${params.toString()}` : ''}`;
       const response = await axios.get(url, { withCredentials: true });
       setTickets(response.data);
       setFilteredTickets(response.data);
@@ -63,7 +65,7 @@ function AdminPanel() {
         params.append('category', categoryFilter);
       }
       
-      const response = await axios.get(`http://localhost:5000/tickets/search?${params.toString()}`, { 
+      const response = await axios.get(`${BASE_URL}/tickets/search?${params.toString()}`, { 
         withCredentials: true 
       });
       setFilteredTickets(response.data);
@@ -78,7 +80,7 @@ function AdminPanel() {
 
   const handleUpdateTicket = async (ticketId, updates) => {
     try {
-      await axios.put(`http://localhost:5000/admin/tickets/${ticketId}`, updates, { withCredentials: true });
+      await axios.put(`${BASE_URL}/admin/tickets/${ticketId}`, updates, { withCredentials: true });
       fetchTickets();
     } catch (err) {
       setError('Failed to update ticket');
@@ -87,7 +89,7 @@ function AdminPanel() {
 
   const handleViewLogs = async (ticketId) => {
     try {
-      const response = await axios.get(`http://localhost:5000/admin/tickets/${ticketId}/logs`, { withCredentials: true });
+      const response = await axios.get(`${BASE_URL}/admin/tickets/${ticketId}/logs`, { withCredentials: true });
       setSelectedTicket({ id: ticketId, logs: response.data });
       setShowLogs(true);
     } catch (err) {
@@ -97,7 +99,7 @@ function AdminPanel() {
 
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:5000/logout', {}, { withCredentials: true });
+      await axios.post(`${BASE_URL}/logout`, {}, { withCredentials: true });
       navigate('/login');
     } catch (err) {
       navigate('/login');
