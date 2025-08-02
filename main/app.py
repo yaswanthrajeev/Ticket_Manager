@@ -14,7 +14,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.environ.get('SQLALCHEMY_TRACK_MODIFICATIONS', 'False') == 'True'
 app.secret_key = os.environ.get('SECRET_KEY', 'your_secret_key')
 # Secure session cookies for production
-app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_SECURE'] = os.environ.get('SESSION_COOKIE_SECURE', 'False') == 'True'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
@@ -37,4 +37,5 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()
     # For development only. For production, use a WSGI server like Gunicorn or uWSGI.
-    app.run(debug=False)
+    debug_mode = os.environ.get('FLASK_DEBUG', 'False') == 'True'
+    app.run(debug=debug_mode)
