@@ -19,7 +19,7 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 # Enable CORS
-CORS(app, supports_credentials=True, origins=['http://localhost:5173','https://ticket-manager-q524.vercel.app/'])
+CORS(app, supports_credentials=True, origins=['http://localhost:5173','https://ticket-manager-gle7.vercel.app/'])
 
 db.init_app(app)
 migrate = Migrate(app,db)
