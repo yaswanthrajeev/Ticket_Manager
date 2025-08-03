@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+const BASE_URL = process.env.REACT_APP_BACKEND_URL ;
 
 function CommentSection({ ticketId, isAdmin }) {
   const [comments, setComments] = useState([]);
