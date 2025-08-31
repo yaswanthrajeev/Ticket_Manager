@@ -38,4 +38,4 @@ if __name__ == "__main__":
         db.create_all()
     # For development only. For production, use a WSGI server like Gunicorn or uWSGI.
     debug_mode = os.environ.get('FLASK_DEBUG', 'False') == 'True'
-    app.run(debug=debug_mode)
+    app.run(debug=debug_mode, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
