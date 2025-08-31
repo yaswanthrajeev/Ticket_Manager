@@ -1,6 +1,6 @@
-from flask import Flask
+from flask import Flask, jsonify, session, request
 from flask_cors import CORS
-from main.models import db
+from main.models import db, User
 from main.tickets import ticket
 from main.admin import admin
 from main.auth import auth, bcrypt
@@ -46,6 +46,44 @@ def init_db():
         return "Database initialized successfully!"
     except Exception as e:
         return f"Error initializing database: {str(e)}"
+
+@app.route('/make-admin/<username>')
+def make_admin(username):
+    try:
+        with app.app_context():
+            user = User.query.filter_by(username=username).first()
+            if user:
+                user.is_admin = True
+                db.session.commit()
+                return f"User '{username}' is now admin!"
+            else:
+                return f"User '{username}' not found!"
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+@app.route('/users')
+def list_users():
+    try:
+        with app.app_context():
+            users = User.query.all()
+            user_list = [{
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'is_admin': user.is_admin
+            } for user in users]
+            return jsonify(user_list)
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+@app.route('/session-info')
+def session_info():
+    return jsonify({
+        'session_data': dict(session),
+        'user_id_in_session': session.get('user_id'),
+        'session_id': session.get('_id'),
+        'cookies': dict(request.cookies)
+    })
 
 if __name__ == "__main__":
     with app.app_context():
