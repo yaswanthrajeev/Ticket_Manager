@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import CommentSection from './CommentSection';
 
-const BASE_URL = process.env.REACT_APP_BACKEND_URL;
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
 
 function TicketList({ tickets, onUpdate, onDelete, isAdmin }) {

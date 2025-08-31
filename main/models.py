@@ -40,3 +40,16 @@ class TicketLog(db.Model):
 
     def __repr__(self):
         return f'<TicketLog {self.ticket_id}: {self.action} at {self.timestamp}>'
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    ticket_id = db.Column(db.Integer, db.ForeignKey('ticket.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='comments')
+    
+    def __repr__(self):
+        return f'<Comment {self.id} on Ticket {self.ticket_id} by User {self.user_id}>'

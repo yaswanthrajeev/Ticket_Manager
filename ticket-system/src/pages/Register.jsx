@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
-const BASE_URL = process.env.REACT_APP_BACKEND_URL ;
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
 function Register() {
   const [form, setForm] = useState({ username: '', email: '', password: '', is_admin: false });

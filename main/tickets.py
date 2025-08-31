@@ -1,5 +1,5 @@
 from flask import Blueprint, request, session, jsonify
-from main.models import db, Ticket,TicketLog,TicketStatus
+from main.models import db, Ticket, TicketLog, TicketStatus, Comment, User
 from flask import send_from_directory, current_app
 import os
 
@@ -110,4 +110,72 @@ def delete_ticket(ticket_id):
     db.session.delete(ticket)
     db.session.commit()
     return jsonify({'message': 'Ticket deleted successfully'})
+
+# Comments endpoints
+@ticket.route('/tickets/<int:ticket_id>/comments', methods=['GET'])
+def get_comments(ticket_id):
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    ticket = Ticket.query.get_or_404(ticket_id)
+    comments = Comment.query.filter_by(ticket_id=ticket_id).order_by(Comment.timestamp.desc()).all()
+    
+    comment_list = [
+        {
+            'id': c.id,
+            'content': c.content,
+            'user_id': c.user_id,
+            'username': c.user.username,
+            'timestamp': c.timestamp.isoformat()
+        }
+        for c in comments
+    ]
+    return jsonify(comment_list)
+
+@ticket.route('/tickets/<int:ticket_id>/comments', methods=['POST'])
+def create_comment(ticket_id):
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    ticket = Ticket.query.get_or_404(ticket_id)
+    data = request.json
+    content = data.get('content')
+    
+    if not content:
+        return jsonify({'error': 'Comment content is required'}), 400
+    
+    comment = Comment(
+        content=content,
+        ticket_id=ticket_id,
+        user_id=session['user_id']
+    )
+    
+    db.session.add(comment)
+    db.session.commit()
+    
+    return jsonify({
+        'id': comment.id,
+        'content': comment.content,
+        'user_id': comment.user_id,
+        'username': comment.user.username,
+        'timestamp': comment.timestamp.isoformat()
+    }), 201
+
+@ticket.route('/comments/<int:comment_id>', methods=['DELETE'])
+def delete_comment(comment_id):
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    comment = Comment.query.get_or_404(comment_id)
+    
+    # Only allow users to delete their own comments or admins
+    if comment.user_id != session['user_id']:
+        # Check if user is admin
+        user = User.query.get(session['user_id'])
+        if not user or not user.is_admin:
+            return jsonify({'error': 'Forbidden'}), 403
+    
+    db.session.delete(comment)
+    db.session.commit()
+    return jsonify({'message': 'Comment deleted successfully'})
 
