@@ -54,6 +54,15 @@ def migrate_db():
     except Exception as e:
         return f"Error migrating database: {str(e)}"
 
+@app.route('/create-tables')
+def create_tables():
+    try:
+        with app.app_context():
+            db.create_all()
+        return "Database tables created successfully!"
+    except Exception as e:
+        return f"Error creating tables: {str(e)}"
+
 @app.route('/make-admin/<username>')
 def make_admin(username):
     try:
