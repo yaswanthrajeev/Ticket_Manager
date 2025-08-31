@@ -19,12 +19,18 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 # Enable CORS
-CORS(app, supports_credentials=True, origins=[
-    'http://localhost:5173',  # Development
-    'https://ticket-manager-gle7.vercel.app',  # Current Vercel deployment
-    'https://ticket-manager-3.onrender.com',   # Backend URL (if needed)
-    os.environ.get('FRONTEND_URL', 'https://ticket-manager-gle7.vercel.app')  # Environment variable fallback
-])
+CORS(app, 
+     supports_credentials=True, 
+     origins=[
+         'http://localhost:5173',  # Development
+         'http://localhost:3000',  # Alternative dev port
+         'https://ticket-manager-gle7.vercel.app',  # Current Vercel deployment
+         'https://ticket-manager-3.onrender.com',   # Backend URL (if needed)
+         os.environ.get('FRONTEND_URL', 'https://ticket-manager-gle7.vercel.app')  # Environment variable fallback
+     ],
+     allow_headers=['Content-Type', 'Authorization'],
+     methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+)
 
 db.init_app(app)
 migrate = Migrate(app,db)
@@ -38,14 +44,15 @@ app.register_blueprint(admin)
 def home():
     return "Hello system live"
 
-@app.route('/init-db')
-def init_db():
+@app.route('/migrate-db')
+def migrate_db():
     try:
         with app.app_context():
-            db.create_all()
-        return "Database initialized successfully!"
+            from flask_migrate import upgrade
+            upgrade()
+        return "Database migrated successfully!"
     except Exception as e:
-        return f"Error initializing database: {str(e)}"
+        return f"Error migrating database: {str(e)}"
 
 @app.route('/make-admin/<username>')
 def make_admin(username):
