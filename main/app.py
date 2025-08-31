@@ -38,6 +38,15 @@ app.register_blueprint(admin)
 def home():
     return "Hello system live"
 
+@app.route('/init-db')
+def init_db():
+    try:
+        with app.app_context():
+            db.create_all()
+        return "Database initialized successfully!"
+    except Exception as e:
+        return f"Error initializing database: {str(e)}"
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
