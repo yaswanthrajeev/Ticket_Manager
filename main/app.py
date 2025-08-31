@@ -19,7 +19,12 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 # Enable CORS
-CORS(app, supports_credentials=True, origins=['http://localhost:5173','https://ticket-manager-gle7.vercel.app/'])
+CORS(app, supports_credentials=True, origins=[
+    'http://localhost:5173',  # Development
+    'https://ticket-manager-gle7.vercel.app',  # Current Vercel deployment
+    'https://ticket-manager-3.onrender.com',   # Backend URL (if needed)
+    os.environ.get('FRONTEND_URL', 'https://ticket-manager-gle7.vercel.app')  # Environment variable fallback
+])
 
 db.init_app(app)
 migrate = Migrate(app,db)
